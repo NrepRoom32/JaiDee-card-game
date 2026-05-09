@@ -61,8 +61,8 @@
             border-radius: 12px;
             border: 3px solid white;
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            /* ใช้รูป Jaidee_06 เป็นหลังไพ่ */
-            background: url('Jaidee_06.jpg') center/cover no-repeat;
+            /* ປ່ຽນເປັນ .png ແລ້ວ */
+            background: url('Jaidee_06.png') center/cover no-repeat;
         }
 
         .card-front {
@@ -80,7 +80,6 @@
             border: 3px solid #ff7eb3;
         }
 
-        /* Floating UI */
         .btn-reset {
             position: absolute;
             bottom: 30px;
@@ -133,37 +132,31 @@
 <body>
 
 <div id="app-container">
-    <!-- Splash Screen (300x300px) -->
+    <!-- Splash Screen (300x300px) - ປ່ຽນເປັນ .png ແລ້ວ -->
     <div id="splash" class="absolute inset-0 flex flex-col items-center justify-center bg-white z-[300] transition-opacity duration-700">
-        <img src="Jaidee_06.jpg" class="w-[300px] h-[300px] object-cover rounded-3xl shadow-2xl mb-10" alt="Home">
+        <img src="Jaidee_06.png" class="w-[300px] h-[300px] object-cover rounded-3xl shadow-2xl mb-10" alt="Home">
         <button onclick="startGame()" class="bg-gradient-to-r from-pink-400 to-purple-500 text-white px-14 py-4 rounded-full text-2xl font-bold shadow-xl active:scale-90 transition-transform">
-            เริ่มเกม
+            开始游戏
         </button>
     </div>
 
-    <!-- Game UI -->
     <div id="game-table" class="hidden h-full w-full relative">
         <div class="absolute top-12 left-0 w-full text-center">
             <span class="bg-white/30 px-6 py-2 rounded-full text-white font-bold text-lg backdrop-blur-md">
-                ไพ่เหลือ: <span id="deck-left">52</span> ใบ
+                ໄພ່ເຫຼືອ: <span id="deck-left">52</span> ໃບ
             </span>
         </div>
         
-        <div id="cards-container" class="h-full w-full">
-            <!-- Cards float here -->
-        </div>
+        <div id="cards-container" class="h-full w-full"></div>
 
         <button onclick="resetGame()" class="btn-reset active:scale-90">🔄</button>
     </div>
 </div>
 
-<!-- Modal -->
 <div id="result-modal">
-    <div id="opened-card-display" class="big-card">
-        <!-- Content injected by JS -->
-    </div>
+    <div id="opened-card-display" class="big-card"></div>
     <button onclick="closeModal()" class="mt-10 bg-white text-purple-600 px-12 py-3 rounded-full text-xl font-bold shadow-2xl">
-        ตกลง
+        ຕົກລົງ
     </button>
 </div>
 
@@ -171,21 +164,21 @@
     const suits = ['♦️', '♠️', '♣️', '♥️'];
     const values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
     
-    // ตั้งค่ารูปภาพและข้อความตามสีตัวละคร
+    // ອັບເດດຊື່ໄຟລ໌ເປັນ .png ທັງໝົດ
     const cardContent = {
-        '2': { text: '"ລອດ" ເຈົ້າໄດ້ໃຊ້ດວງໄປແລ້ວ 50%', img: 'Jaidee_06.jpg' }, // แดง
-        '3': { text: '"ດື່ມ 1ຈອກ"', img: 'Jaidee_06.jpg' }, // แดง
-        '4': { text: '"ລອດ" ຍັງຖືວ່າໂຊດີເນາະ', img: 'Tiger_01.png' }, // เหลือง
-        '5': { text: '"ລອດ" ຄວາມຊວຍອາດແມ່ນຄົນຕໍ່ໄປ', img: 'Mony_03.png' }, // ขาว
-        '6': { text: '"ດື່ມ 1ຈອກ"', img: 'Tiger_01.png' }, // เหลือง
-        '7': { text: '"ລອດ" ດວງດີ ລອງຊື້ເລກເບິ່ງເດີ', img: 'Jaidee_06.jpg' }, // แดง
-        '8': { text: '"ລອດ" ລູກເທວະດາມາເກີດບໍ່ນິ', img: 'Tiger_01.png' }, // เหลือง
-        '9': { text: '"ດື່ມ 1ຈອກ"', img: 'Mony_03.png' }, // ขาว
-        '10': { text: '"ລອດ" ເສຍດາຍບໍ່ໄດ້ກິນຊ້ຳ', img: 'Mony_03.png' }, // ขาว
-        'J': { text: '"ຄົນທາງຊ້າຍດື່ມ 1ຈອກ"', img: 'Jaidee_06.jpg' }, // แดง+ขาว (ใช้ Jaidee)
-        'Q': { text: '"ຄົນທາງຂວາດື່ມ 1ຈອກ"', img: 'Tiger_01.png' }, // เหลือง+ขาว (ใช้ Tiger)
-        'K': { text: '"ຊວນຄົນທາງຊ້າຍ ແລະ ຂວາດື່ມ 1ຈອກ"', img: 'Mony_03.png' }, // ทั้งสาม (ใช้ Mony)
-        'A': { text: '"ສັ່ງໃຜກະໄດ້ດື່ມ 1ຈອກ ຫຼື ຈະສັ່ງທັງໝົດດື່ມກໍ່ໄດ້"', img: 'Jaidee_06.jpg' } // มงกุฎ (ใช้ Jaidee)
+        '2': { text: '"ລອດ" ເຈົ້າໄດ້ໃຊ້ດວງໄປແລ້ວ 50%', img: 'Jaidee_06.png' },
+        '3': { text: '"ດື່ມ 1ຈອກ"', img: 'Jaidee_06.png' },
+        '4': { text: '"ລອດ" ຍັງຖືວ່າໂຊດີເນາະ', img: 'Tiger_01.png' },
+        '5': { text: '"ລອດ" ຄວາມຊວຍອາດແມ່ນຄົນຕໍ່ໄປ', img: 'Mony_03.png' },
+        '6': { text: '"ດື່ມ 1ຈອກ"', img: 'Tiger_01.png' },
+        '7': { text: '"ລອດ" ດວງດີ ລອງຊື້ເລກເບິ່ງເດີ', img: 'Jaidee_06.png' },
+        '8': { text: '"ລອດ" ລູກເທວະດາມາເກີດບໍ່ນິ', img: 'Tiger_01.png' },
+        '9': { text: '"ດື່ມ 1ຈອກ"', img: 'Mony_03.png' },
+        '10': { text: '"ລອດ" ເສຍດາຍບໍ່ໄດ້ກິນຊ້ຳ', img: 'Mony_03.png' },
+        'J': { text: '"ຄົນທາງຊ້າຍດື່ມ 1ຈອກ"', img: 'Jaidee_06.png' },
+        'Q': { text: '"ຄົນທາງຂວາດື່ມ 1ຈອກ"', img: 'Tiger_01.png' },
+        'K': { text: '"ຊວນຄົນທາງຊ້າຍ ແລະ ຂວາດື່ມ 1ຈອກ"', img: 'Mony_03.png' },
+        'A': { text: '"ສັ່ງໃຜກະໄດ້ດື່ມ 1ຈອກ ຫຼື ຈະສັ່ງທັງໝົດດື່ມກໍ່ໄດ້"', img: 'Jaidee_06.png' }
     };
 
     let deck = [];
@@ -226,13 +219,9 @@
         for (let i = 0; i < count; i++) {
             const card = document.createElement('div');
             card.className = 'floating-card';
-            
-            // ตำแหน่งลอยแนวนอน (Horizontal circle-ish)
-            const xPos = 50 + (Math.cos(Date.now()/1000 + i) * 30);
             card.style.left = `calc(${20 + (i * 15)}% - 50px)`;
             card.style.top = `calc(50% - 75px + ${Math.sin(Date.now()/1000 + i) * 20}px)`;
             card.style.animationDelay = `${i * 0.3}s`;
-
             card.innerHTML = `<div class="card-inner"><div class="card-back"></div></div>`;
             card.onclick = () => openCard(i);
             container.appendChild(card);
@@ -243,7 +232,6 @@
         const data = deck.splice(index, 1)[0];
         const modal = document.getElementById('result-modal');
         const display = document.getElementById('opened-card-display');
-        
         document.getElementById('cards-container').style.opacity = '0';
 
         display.innerHTML = `
@@ -258,7 +246,6 @@
                 <span>${data.value}${data.suit}</span>
             </div>
         `;
-
         modal.style.display = 'flex';
     }
 
@@ -274,14 +261,6 @@
             renderCards();
         }
     }
-
-    // ระบบขยับตลอดเวลา (Horizontal Drift)
-    setInterval(() => {
-        if(!document.getElementById('game-table').classList.contains('hidden')) {
-            // Optional logic to update positions dynamically
-        }
-    }, 100);
 </script>
-
 </body>
 </html>
