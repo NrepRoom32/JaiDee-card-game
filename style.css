@@ -529,8 +529,8 @@ body {
 .flip-front {
   background: white;
   transform: rotateY(180deg);
-  display: flex;
-  flex-direction: column;
+  position: relative;
+  overflow: hidden;
   box-shadow:
     0 24px 48px rgba(0,0,0,0.4),
     inset 0 0 0 1px rgba(0,0,0,0.05);
@@ -547,6 +547,8 @@ body {
   font-weight: 700;
   font-size: 30px;
   letter-spacing: -1px;
+  z-index: 2;
+  text-shadow: 0 1px 4px rgba(255,255,255,0.8), 0 0 8px rgba(255,255,255,0.6);
 }
 .card-corner .rank { line-height: 0.9; }
 .card-corner .suit { font-size: 24px; line-height: 1; margin-top: 2px; }
@@ -557,21 +559,26 @@ body {
 .card-corner.black { color: #1a1a1a; }
 
 .card-center {
-  flex: 1;
+  position: absolute;
+  inset: 0;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 48px 16px 16px;
-  gap: 6px;
+  align-items: stretch;
+  justify-content: flex-start;
+  padding: 0;
+  gap: 0;
   text-align: center;
+  overflow: hidden;
 }
 
 .card-character {
-  width: 75%;
-  max-height: 58%;
-  object-fit: contain;
-  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.15));
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+  filter: none;
   animation: char-pop 0.5s 0.5s cubic-bezier(.34,1.56,.64,1) backwards;
 }
 @keyframes char-pop {
@@ -583,22 +590,26 @@ body {
   font-family: 'Noto Sans Lao', sans-serif;
   font-weight: 900;
   font-size: 22px;
-  line-height: 1.25;
-  color: #ff3b8b;
-  margin-top: 6px;
-  padding: 0 8px;
+  line-height: 1.2;
+  color: #fff;
+  background: linear-gradient(135deg, #ff3b8b 0%, #8b5cf6 100%);
+  padding: 10px 12px 6px;
   word-break: keep-all;
   overflow-wrap: break-word;
   animation: char-pop 0.5s 0.7s cubic-bezier(.34,1.56,.64,1) backwards;
+  flex-shrink: 0;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.25);
 }
 .card-message {
   font-family: 'Noto Sans Lao', sans-serif;
-  font-weight: 500;
-  font-size: 16px;
-  color: #555;
-  line-height: 1.4;
-  padding: 0 8px;
+  font-weight: 600;
+  font-size: 14px;
+  color: #fff;
+  background: rgba(139,92,246,0.88);
+  line-height: 1.35;
+  padding: 4px 12px 10px;
   animation: char-pop 0.5s 0.85s cubic-bezier(.34,1.56,.64,1) backwards;
+  flex-shrink: 0;
 }
 
 .ok-btn {
