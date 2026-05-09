@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="lo">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Lollipop Card Game</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Noto Sans Lao', sans-serif;
+            background: linear-gradient(135deg, #ff7eb3, #7afcff, #a18cd1);
+            height: 100vh;
+            overflow: hidden;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #app-container {
+            width: 100%;
+            max-width: 500px;
+            height: 100vh;
+            position: relative;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border-left: 1px solid rgba(255,255,255,0.3);
+            border-right: 1px solid rgba(255,255,255,0.3);
+            overflow: hidden;
+        }
+
+        /* Card Animation */
+        .floating-card {
+            position: absolute;
+            width: 100px;
+            height: 150px;
+            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            cursor: pointer;
+            animation: floatAndRotate 4s ease-in-out infinite;
+        }
+
+        @keyframes floatAndRotate {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(5deg); }
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.8s;
+            transform-style: preserve-3d;
+        }
+
+        .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 12px;
+            border: 3px solid white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            /* ใช้รูป Jaidee_06 เป็นหลังไพ่ */
+            background: url('Jaidee_06.jpg') center/cover no-repeat;
+        }
+
+        .card-front {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            background: white;
+            border-radius: 12px;
+            transform: rotateY(180deg);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 8px;
+            border: 3px solid #ff7eb3;
+        }
+
+        /* Floating UI */
+        .btn-reset {
+            position: absolute;
+            bottom: 30px;
+            right: 20px;
+            background: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            z-index: 100;
+            border: 2px solid #ff7eb3;
+        }
+
+        #result-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 200;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .big-card {
+            width: 280px;
+            height: 420px;
+            background: white;
+            border-radius: 20px;
+            padding: 15px;
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            border: 8px solid #7afcff;
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0.5) rotate(-10deg); opacity: 0; }
+            to { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="app-container">
+    <!-- Splash Screen (300x300px) -->
+    <div id="splash" class="absolute inset-0 flex flex-col items-center justify-center bg-white z-[300] transition-opacity duration-700">
+        <img src="Jaidee_06.jpg" class="w-[300px] h-[300px] object-cover rounded-3xl shadow-2xl mb-10" alt="Home">
+        <button onclick="startGame()" class="bg-gradient-to-r from-pink-400 to-purple-500 text-white px-14 py-4 rounded-full text-2xl font-bold shadow-xl active:scale-90 transition-transform">
+            เริ่มเกม
+        </button>
+    </div>
+
+    <!-- Game UI -->
+    <div id="game-table" class="hidden h-full w-full relative">
+        <div class="absolute top-12 left-0 w-full text-center">
+            <span class="bg-white/30 px-6 py-2 rounded-full text-white font-bold text-lg backdrop-blur-md">
+                ไพ่เหลือ: <span id="deck-left">52</span> ใบ
+            </span>
+        </div>
+        
+        <div id="cards-container" class="h-full w-full">
+            <!-- Cards float here -->
+        </div>
+
+        <button onclick="resetGame()" class="btn-reset active:scale-90">🔄</button>
+    </div>
+</div>
+
+<!-- Modal -->
+<div id="result-modal">
+    <div id="opened-card-display" class="big-card">
+        <!-- Content injected by JS -->
+    </div>
+    <button onclick="closeModal()" class="mt-10 bg-white text-purple-600 px-12 py-3 rounded-full text-xl font-bold shadow-2xl">
+        ตกลง
+    </button>
+</div>
+
+<script>
+    const suits = ['♦️', '♠️', '♣️', '♥️'];
+    const values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+    
+    // ตั้งค่ารูปภาพและข้อความตามสีตัวละคร
+    const cardContent = {
+        '2': { text: '"ລອດ" ເຈົ້າໄດ້ໃຊ້ດວງໄປແລ້ວ 50%', img: 'Jaidee_06.jpg' }, // แดง
+        '3': { text: '"ດື່ມ 1ຈອກ"', img: 'Jaidee_06.jpg' }, // แดง
+        '4': { text: '"ລອດ" ຍັງຖືວ່າໂຊດີເນາະ', img: 'Tiger_01.png' }, // เหลือง
+        '5': { text: '"ລອດ" ຄວາມຊວຍອາດແມ່ນຄົນຕໍ່ໄປ', img: 'Mony_03.png' }, // ขาว
+        '6': { text: '"ດື່ມ 1ຈອກ"', img: 'Tiger_01.png' }, // เหลือง
+        '7': { text: '"ລອດ" ດວງດີ ລອງຊື້ເລກເບິ່ງເດີ', img: 'Jaidee_06.jpg' }, // แดง
+        '8': { text: '"ລອດ" ລູກເທວະດາມາເກີດບໍ່ນິ', img: 'Tiger_01.png' }, // เหลือง
+        '9': { text: '"ດື່ມ 1ຈອກ"', img: 'Mony_03.png' }, // ขาว
+        '10': { text: '"ລອດ" ເສຍດາຍບໍ່ໄດ້ກິນຊ້ຳ', img: 'Mony_03.png' }, // ขาว
+        'J': { text: '"ຄົນທາງຊ້າຍດື່ມ 1ຈອກ"', img: 'Jaidee_06.jpg' }, // แดง+ขาว (ใช้ Jaidee)
+        'Q': { text: '"ຄົນທາງຂວາດື່ມ 1ຈອກ"', img: 'Tiger_01.png' }, // เหลือง+ขาว (ใช้ Tiger)
+        'K': { text: '"ຊວນຄົນທາງຊ້າຍ ແລະ ຂວາດື່ມ 1ຈອກ"', img: 'Mony_03.png' }, // ทั้งสาม (ใช้ Mony)
+        'A': { text: '"ສັ່ງໃຜກະໄດ້ດື່ມ 1ຈອກ ຫຼື ຈະສັ່ງທັງໝົດດື່ມກໍ່ໄດ້"', img: 'Jaidee_06.jpg' } // มงกุฎ (ใช้ Jaidee)
+    };
+
+    let deck = [];
+
+    function initDeck() {
+        deck = [];
+        for (let s of suits) {
+            for (let v of values) {
+                deck.push({ suit: s, value: v, ...cardContent[v] });
+            }
+        }
+        shuffle(deck);
+    }
+
+    function shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+    function startGame() {
+        document.getElementById('splash').classList.add('opacity-0');
+        setTimeout(() => {
+            document.getElementById('splash').style.display = 'none';
+            document.getElementById('game-table').classList.remove('hidden');
+            initDeck();
+            renderCards();
+        }, 700);
+    }
+
+    function renderCards() {
+        const container = document.getElementById('cards-container');
+        container.innerHTML = '';
+        const count = Math.min(deck.length, 5);
+        document.getElementById('deck-left').innerText = deck.length;
+
+        for (let i = 0; i < count; i++) {
+            const card = document.createElement('div');
+            card.className = 'floating-card';
+            
+            // ตำแหน่งลอยแนวนอน (Horizontal circle-ish)
+            const xPos = 50 + (Math.cos(Date.now()/1000 + i) * 30);
+            card.style.left = `calc(${20 + (i * 15)}% - 50px)`;
+            card.style.top = `calc(50% - 75px + ${Math.sin(Date.now()/1000 + i) * 20}px)`;
+            card.style.animationDelay = `${i * 0.3}s`;
+
+            card.innerHTML = `<div class="card-inner"><div class="card-back"></div></div>`;
+            card.onclick = () => openCard(i);
+            container.appendChild(card);
+        }
+    }
+
+    function openCard(index) {
+        const data = deck.splice(index, 1)[0];
+        const modal = document.getElementById('result-modal');
+        const display = document.getElementById('opened-card-display');
+        
+        document.getElementById('cards-container').style.opacity = '0';
+
+        display.innerHTML = `
+            <div class="flex justify-between w-full text-3xl font-black text-pink-500">
+                <span>${data.value}<br>${data.suit}</span>
+                <span class="rotate-180">${data.value}<br>${data.suit}</span>
+            </div>
+            <img src="${data.img}" class="w-48 h-48 object-contain">
+            <p class="text-2xl font-bold text-center leading-relaxed text-gray-800">${data.text}</p>
+            <div class="flex justify-between w-full text-3xl font-black text-pink-500 opacity-20">
+                <span>${data.value}${data.suit}</span>
+                <span>${data.value}${data.suit}</span>
+            </div>
+        `;
+
+        modal.style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('result-modal').style.display = 'none';
+        document.getElementById('cards-container').style.opacity = '1';
+        renderCards();
+    }
+
+    function resetGame() {
+        if(confirm("ລ້າງໄພ່ໃໝ່?")) {
+            initDeck();
+            renderCards();
+        }
+    }
+
+    // ระบบขยับตลอดเวลา (Horizontal Drift)
+    setInterval(() => {
+        if(!document.getElementById('game-table').classList.contains('hidden')) {
+            // Optional logic to update positions dynamically
+        }
+    }, 100);
+</script>
+
+</body>
+</html>
