@@ -530,6 +530,8 @@ body {
   background: white;
   transform: rotateY(180deg);
   position: relative;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
   box-shadow:
     0 24px 48px rgba(0,0,0,0.4),
@@ -559,8 +561,7 @@ body {
 .card-corner.black { color: #1a1a1a; }
 
 .card-center {
-  position: absolute;
-  inset: 0;
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -569,6 +570,8 @@ body {
   gap: 0;
   text-align: center;
   overflow: hidden;
+  min-height: 0;
+  padding-top: 52px;
 }
 
 .card-character {
